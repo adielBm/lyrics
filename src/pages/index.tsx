@@ -4,6 +4,7 @@ import { CheckIcon } from "../components/Icons/Check";
 import { CopyIcon } from "../components/Icons/Copy";
 import Layout from "../components/Layout";
 import { toast } from "react-hot-toast";
+import { set } from "zod";
 
 type Lyrics = {
   lyrics: string;
@@ -32,6 +33,7 @@ const Home: NextPage = () => {
     if (trackName.trim() === "") {
       toast.error("Track name can't be empty!");
     } else {
+      setRuned(true);
 
       let artist = "", track = "";
       // if track name contains " by " then split it into track and artist
@@ -68,6 +70,12 @@ const Home: NextPage = () => {
     const query = urlParams.get("q");
     if (query) {
       setTrackName(query);
+    } else {
+      /* focus input */
+      const input = document.querySelector("input");
+      if (input) {
+        input.focus();
+      }
     }
   }, []);
 
@@ -98,6 +106,10 @@ const Home: NextPage = () => {
               placeholder="Enter 'song' or 'song by artist'"
               value={trackName}
               onChange={handleTrackChange}
+              onFocus={(e) => {
+                e.target.select()
+                setRuned(true);
+              }}
             />
           </form>
         </div>
