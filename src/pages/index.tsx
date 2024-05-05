@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-
-import { type NextPage } from "next";
-import { type KeyboardEvent, useState } from "react";
+import { NextPage } from "next";
+import { useEffect, useState } from "react";
 import { CheckIcon } from "../components/Icons/Check";
 import { CopyIcon } from "../components/Icons/Copy";
 import Layout from "../components/Layout";
@@ -14,9 +12,14 @@ type Lyrics = {
 
 const Home: NextPage = () => {
   const [lyrics, setLyrics] = useState<Lyrics | null>(null);
+
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [trackName, setTrackName] = useState<string>("");
-  const [artistName, setArtistName] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
+
+  const [runed, setRuned] = useState<boolean>(false);
+
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -24,15 +27,25 @@ const Home: NextPage = () => {
     setTrackName(e.target.value);
   };
 
-  const handleArtistChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setArtistName(e.target.value);
-  };
+
 
   const handleClick = async () => {
     if (trackName.trim() === "") {
       toast.error("Track name can't be empty!");
     } else {
-      const res = await fetch(`/api/${trackName}/${artistName}`);
+
+      let artist = "", track = "";
+      // if track name contains " by " then split it into track and artist
+      if (trackName.includes(" by ")) {
+        [track, artist] = trackName.split(" by ") as [string, string];
+      } else {
+         track = trackName;
+      }
+
+      setLoading(true);
+      const res = await fetch(`/api/${track}/${artist}`);
+      setLoading(false);
+
       if (res.ok) {
         const data = (await res.json()) as Lyrics;
         setLyrics(data);
@@ -47,11 +60,11 @@ const Home: NextPage = () => {
     }
   };
 
-  const handleEnterPress = async (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleEnterPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Enter") {
         await handleClick();
     }
-  }
+  };
 
   const handleCopy = () => {
     navigator.clipboard
@@ -67,48 +80,46 @@ const Home: NextPage = () => {
       });
   };
 
+  useEffect(() => {
+    console.log("useEffect1");
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get("q");
+    if (query) {
+      setTrackName(query);
+    }
+  }, []);
+  
+  useEffect(() => {
+    console.log("useEffect2");
+    if (runed == true) {
+      console.log("runed == true");
+    } else {
+      console.log("runed == false");
+    }
+
+    if (runed == false && trackName.trim() !== "") {
+      console.log("handleClick");
+      handleClick();
+      setRuned(true);
+    }
+  }, [trackName]);
+
   return (
     <Layout>
-      <section className="mt-4 flex w-full flex-col items-center justify-center p-2 md:w-2/3 lg:w-1/2">
-        <h2 className="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-[5rem] font-black text-transparent md:text-[7rem]">
-          lyrist
-        </h2>
-        <p className="text-center text-base text-pink-100 md:text-xl">
-          a simple and easy to use RESTful lyrics API that just works
-        </p>
-      </section>
-      <section className="flex w-full flex-col items-center justify-center gap-4 p-2 md:w-2/3 lg:w-1/2">
+      <section className="gap-2 flex w-full flex-col items-center justify-center  md:w-2/3 lg:w-1/2">
         <div className="flex w-full flex-col items-center justify-center gap-4">
           <input
             className="w-full rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 text-pink-100 shadow-xl outline-0 placeholder:text-zinc-400 hover:outline-0"
-            placeholder="Enter track name"
+            placeholder="'trackname' or 'trackname by artist'"
+            value={trackName}
             onChange={handleTrackChange}
             onKeyUp={handleEnterPress}
-          ></input>
-          <div className="flex w-full items-center justify-start gap-4">
-            <input
-              className="w-full rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 text-pink-100 shadow-xl outline-0 placeholder:text-zinc-400 hover:outline-0"
-              placeholder="Enter artist name (leave blank if unknown)"
-              onChange={handleArtistChange}
-              onKeyUp={handleEnterPress}
-            ></input>
-            <button
-              className="rounded-md border border-zinc-600 bg-zinc-800/90 px-4 py-2 text-pink-100 shadow-xl duration-300 hover:bg-zinc-800/60"
-              onClick={handleClick}
-            >
-              Search
-            </button>
-          </div>
+          />
         </div>
-        <div className="lyrics relative h-[400px] max-h-[400px] w-full overflow-y-scroll rounded-md border border-zinc-600 bg-zinc-800/60 p-4 text-sm text-pink-100 shadow-xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-700/50 scrollbar-thumb-rounded-md md:h-[250px] md:max-h-[250px]">
-          <button
-            onClick={handleCopy}
-            className="duration:300 absolute top-[1rem] right-[1rem] z-[1000] rounded-md border border-zinc-600 bg-zinc-800/60 p-[0.35rem] text-base text-pink-100 shadow duration-300 hover:bg-zinc-700/40"
-          >
-            {copied ? <CheckIcon /> : <CopyIcon />}
-          </button>
+        <div className="lyrics relative w-full text-pink-200 scrollbar-thin scrollbar-track-transparent">
           <p className="whitespace-pre-line">
-            {lyrics?.lyrics || "Nothing here yet ..."}
+            {lyrics?.lyrics}
+            {loading && "Loading..."}
           </p>
         </div>
       </section>
