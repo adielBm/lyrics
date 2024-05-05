@@ -30,6 +30,9 @@ const Home: NextPage = () => {
 
 
   const handleClick = async () => {
+   
+    document.querySelector("input")?.blur();
+
     if (trackName.trim() === "") {
       toast.error("Track name can't be empty!");
     } else {
