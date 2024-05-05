@@ -1,8 +1,3 @@
 fork of https://github.com/asrvd/lyrist
 
-
-# Todo list for this fork
-
-[] search using query string
-[] style 
-
+i just add searching using query string (i.e. `?q=SONG by ARTIST`) and some style changes.
