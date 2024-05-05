@@ -8,6 +8,9 @@ import { toast } from "react-hot-toast";
 type Lyrics = {
   lyrics: string;
   id: string;
+  title: string;
+  artist: string;
+  image: string;
 };
 
 const Home: NextPage = () => {
@@ -16,12 +19,8 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [trackName, setTrackName] = useState<string>("");
-  const [copied, setCopied] = useState<boolean>(false);
 
   const [runed, setRuned] = useState<boolean>(false);
-
-  const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleTrackChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTrackName(e.target.value);
@@ -41,15 +40,16 @@ const Home: NextPage = () => {
       } else {
         track = trackName;
       }
-
+      setLyrics(null);
       setLoading(true);
       const res = await fetch(`/api/${track}/${artist}`);
-      setLoading(false);
 
       if (res.ok) {
         const data = (await res.json()) as Lyrics;
+        setLoading(false);
         setLyrics(data);
       } else {
+        setLoading(false);
         if (res.status === 429) {
           toast.error("Rate limit exceeded!");
           return;
@@ -60,25 +60,8 @@ const Home: NextPage = () => {
     }
   };
 
-  const handleEnterPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.code === "Enter") {
-      await handleClick();
-    }
-  };
 
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(lyrics?.lyrics || "")
-      .then(() => {
-        setCopied(true);
-        sleep(1000)
-          .then(() => setCopied(false))
-          .catch(() => null);
-      })
-      .catch(() => {
-        toast.error("Couldn't Copy!");
-      });
-  };
+
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -90,8 +73,11 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (runed == false && trackName.trim() !== "") {
-      handleClick();
-      setRuned(true);
+      handleClick().then(() => {
+        setRuned(true);
+      }).catch(() => {
+        toast.error("An error occurred!");
+      });
     }
   }, [trackName]);
 
@@ -99,15 +85,38 @@ const Home: NextPage = () => {
     <Layout>
       <section className="gap-2 flex w-full flex-col items-center justify-center  md:w-2/3 lg:w-1/2">
         <div className="flex w-full flex-col items-center justify-center gap-4">
-          <input
-            className="w-full rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 text-pink-100 shadow-xl outline-0 placeholder:text-zinc-400 hover:outline-0"
-            placeholder="'trackname' or 'trackname by artist'"
-            value={trackName}
-            onChange={handleTrackChange}
-            onKeyUp={handleEnterPress}
-          />
+          <form className="w-full" onSubmit={(e) => {
+            e.preventDefault();
+            handleClick().then(() => {
+              setRuned(true);
+            }).catch(() => {
+              toast.error("An error occurred!");
+            });
+          }}>
+            <input
+              className="w-full rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 text-pink-100 shadow-xl outline-0 placeholder:text-zinc-400 hover:outline-0"
+              placeholder="Enter 'song' or 'song by artist'"
+              value={trackName}
+              onChange={handleTrackChange}
+            />
+          </form>
         </div>
-        <div className="lyrics relative w-full text-pink-200 scrollbar-thin scrollbar-track-transparent">
+        <div className="lyrics relative w-full scrollbar-thin scrollbar-track-transparent">
+          {lyrics?.title &&
+            <div className="flex rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 mb-2">
+              <div>
+                <b>{lyrics?.title}</b>
+                <p>{lyrics?.artist}</p>
+              </div>
+              {/* album image */}
+              <div className="ml-auto">
+                <img
+                  src={lyrics?.image}
+                  alt="album"
+                  className="h-12 rounded-md"
+                />
+              </div>
+            </div>}
           <p className="whitespace-pre-line">
             {lyrics?.lyrics}
             {loading && "Loading..."}

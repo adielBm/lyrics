@@ -9,8 +9,9 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <>
       <Meta />
-      <main className="min-w-screen flex min-h-screen flex-col items-center gap-6 bg-zinc-800 p-2 font-sans">
+      <main className="min-w-screen text-[#b0b0d6] flex min-h-screen flex-col items-center gap-6 bg-zinc-800 p-2 font-sans">
         {children}
+        <Footer />
       </main>
       <Toaster
         toastOptions={{

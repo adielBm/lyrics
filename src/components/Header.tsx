@@ -23,7 +23,7 @@ export default function Header() {
             <a
               key={index}
               href={link.path}
-              className="font-semibold text-pink-200 bg-zinc-800/60 duration-200 rounded-md p-2 border border-zinc-600"
+              className="font-semibold bg-zinc-800/60 duration-200 rounded-md p-2 border border-zinc-600"
             >
               {link.name}
             </a>
