@@ -71,13 +71,15 @@ const Home: NextPage = () => {
     if (query) {
       setTrackName(query);
     } else {
-      /* focus input */
+      // Focus input
       const input = document.querySelector("input");
       if (input) {
+        input.select();
         input.focus();
       }
     }
   }, []);
+
 
   useEffect(() => {
     if (runed == false && trackName.trim() !== "") {
@@ -102,6 +104,7 @@ const Home: NextPage = () => {
             });
           }}>
             <input
+              type="search"
               className="w-full rounded-md border border-zinc-600 bg-zinc-800/60 px-4 py-2 text-pink-100 shadow-xl outline-0 placeholder:text-zinc-400 hover:outline-0"
               placeholder="Enter 'song' or 'song by artist'"
               value={trackName}
