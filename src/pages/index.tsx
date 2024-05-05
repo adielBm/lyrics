@@ -39,7 +39,7 @@ const Home: NextPage = () => {
       if (trackName.includes(" by ")) {
         [track, artist] = trackName.split(" by ") as [string, string];
       } else {
-         track = trackName;
+        track = trackName;
       }
 
       setLoading(true);
@@ -62,7 +62,7 @@ const Home: NextPage = () => {
 
   const handleEnterPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Enter") {
-        await handleClick();
+      await handleClick();
     }
   };
 
@@ -81,24 +81,15 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log("useEffect1");
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get("q");
     if (query) {
       setTrackName(query);
     }
   }, []);
-  
-  useEffect(() => {
-    console.log("useEffect2");
-    if (runed == true) {
-      console.log("runed == true");
-    } else {
-      console.log("runed == false");
-    }
 
+  useEffect(() => {
     if (runed == false && trackName.trim() !== "") {
-      console.log("handleClick");
       handleClick();
       setRuned(true);
     }
