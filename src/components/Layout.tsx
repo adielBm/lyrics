@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Header from "./Header";
 import Meta from "./Meta";
 import Footer from "./Footer";
 import { Toaster } from "react-hot-toast";
