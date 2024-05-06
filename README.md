@@ -1,3 +1,7 @@
-fork of https://github.com/asrvd/lyrist
+Forked from https://github.com/asrvd/lyrist. I've just added searching using a query string (e.g., https://lyrichunt.netlify.app/?q=hurricane%20by%20bob%20dylan) and made some style changes.
 
-i just add searching using query string (i.e. `?q=SONG by ARTIST`) and some style changes.
+
+
+
+
+
